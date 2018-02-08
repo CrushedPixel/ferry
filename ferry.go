@@ -90,3 +90,39 @@ func (f *Ferry) Handle(method string, path string, handlers ...HandlerFunc) {
 	f.router.Handle(path, nil).Methods(method).Name(key)
 	f.routes[key] = handlers
 }
+
+func (f *Ferry) GET(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodGet, path, handlers...)
+}
+
+func (f *Ferry) POST(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodPost, path, handlers...)
+}
+
+func (f *Ferry) PATCH(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodPatch, path, handlers...)
+}
+
+func (f *Ferry) PUT(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodPut, path, handlers...)
+}
+
+func (f *Ferry) DELETE(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodDelete, path, handlers...)
+}
+
+func (f *Ferry) OPTIONS(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodOptions, path, handlers...)
+}
+
+func (f *Ferry) TRACE(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodTrace, path, handlers...)
+}
+
+func (f *Ferry) CONNECT(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodConnect, path, handlers...)
+}
+
+func (f *Ferry) HEAD(path string, handlers ...HandlerFunc) {
+	f.Handle(http.MethodHead, path, handlers...)
+}
