@@ -12,10 +12,10 @@ type Ferry struct {
 	routes       map[string][]HandlerFunc
 }
 
-type HandlerFunc func(c *Context) *Response
-type HandleConnectionFunc func(r *ConnectionRequest, c *Connection) *Response
+type HandlerFunc func(c *Context) Response
+type HandleConnectionFunc func(r *ConnectionRequest, c *Connection) Response
 
-func defaultOnConnection(r *ConnectionRequest, c *Connection) *Response {
+func defaultOnConnection(r *ConnectionRequest, c *Connection) Response {
 	return nil
 }
 
@@ -27,7 +27,7 @@ func New() *Ferry {
 	}
 }
 
-func (f *Ferry) NewConnection(r *ConnectionRequest) (*Connection, *Response) {
+func (f *Ferry) NewConnection(r *ConnectionRequest) (*Connection, Response) {
 	c := &Connection{
 		ferry: f,
 		data:  make(map[string]interface{}),
@@ -42,7 +42,7 @@ func (f *Ferry) NewConnection(r *ConnectionRequest) (*Connection, *Response) {
 	}
 }
 
-func (f *Ferry) handle(c *Connection, r *Request) *Response {
+func (f *Ferry) handle(c *Connection, r *Request) Response {
 	u, err := url.Parse(r.RequestURI)
 	if err != nil {
 		panic(err)
@@ -79,10 +79,7 @@ func (f *Ferry) handle(c *Connection, r *Request) *Response {
 		panic("last handler in chain did not return a value")
 	}
 
-	return &Response{
-		Status:  http.StatusNotFound,
-		Payload: "404 page not found",
-	}
+	return NewResponse(http.StatusNotFound, "404 page not found")
 }
 
 func (f *Ferry) Handle(method string, path string, handlers ...HandlerFunc) {
