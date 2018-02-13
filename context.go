@@ -2,7 +2,6 @@ package ferry
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 )
 

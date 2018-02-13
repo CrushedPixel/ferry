@@ -15,6 +15,6 @@ func (c *Connection) Set(key string, value interface{}) {
 	c.data[key] = value
 }
 
-func (c *Connection) Handle(r *Request) *Response {
+func (c *Connection) Handle(r *Request) Response {
 	return c.ferry.handle(c, r)
 }
