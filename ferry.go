@@ -2,6 +2,7 @@ package ferry
 
 import (
 	"github.com/gorilla/mux"
+	"golang.org/x/net/context"
 	"net/http"
 	"net/url"
 )
@@ -12,7 +13,7 @@ type Ferry struct {
 	routes       map[string][]HandlerFunc
 }
 
-type HandlerFunc func(c *Context) Response
+type HandlerFunc func(r *Request) Response
 type HandleConnectionFunc func(r *ConnectionRequest, c *Connection) Response
 
 func defaultOnConnection(r *ConnectionRequest, c *Connection) Response {
@@ -29,10 +30,10 @@ func New() *Ferry {
 
 func (f *Ferry) NewConnection(r *ConnectionRequest) (*Connection, Response) {
 	c := &Connection{
-		ferry: f,
-		data:  make(map[string]interface{}),
-
 		RemoteAddr: r.RemoteAddr,
+
+		ferry: f,
+		ctx:   context.Background(),
 	}
 
 	if res := f.OnConnection(r, c); res == nil {
@@ -42,7 +43,7 @@ func (f *Ferry) NewConnection(r *ConnectionRequest) (*Connection, Response) {
 	}
 }
 
-func (f *Ferry) handle(c *Connection, r *Request) Response {
+func (f *Ferry) handle(c *Connection, r *IncomingRequest) Response {
 	u, err := url.Parse(r.RequestURI)
 	if err != nil {
 		panic(err)
@@ -58,19 +59,18 @@ func (f *Ferry) handle(c *Connection, r *Request) Response {
 	if f.router.Match(req, &match) {
 		handlers := f.routes[match.Route.GetName()]
 
-		// create context
-		context := &Context{
+		// create Request object
+		req := &Request{
 			Connection:  c,
 			PathParams:  match.Vars,
 			QueryParams: u.Query(),
 			Payload:     r.Payload,
-
-			data: make(map[string]interface{}),
+			ctx:         context.Background(),
 		}
 
 		// execute handler chain
 		for _, h := range handlers {
-			res := h(context)
+			res := h(req)
 			if res != nil {
 				return res
 			}
