@@ -61,10 +61,10 @@ func (f *Ferry) handle(c *Connection, r *IncomingRequest) Response {
 
 		// create Request object
 		req := &Request{
-			Connection:  c,
-			PathParams:  match.Vars,
-			QueryParams: u.Query(),
-			Payload:     r.Payload,
+			connection:  c,
+			pathParams:  match.Vars,
+			queryParams: u.Query(),
+			payload:     r.Payload,
 			ctx:         context.Background(),
 		}
 

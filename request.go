@@ -17,27 +17,42 @@ type IncomingRequest struct {
 }
 
 type Request struct {
-	Connection *Connection
+	connection *Connection
 
-	PathParams  map[string]string
-	QueryParams map[string][]string
-	Payload     io.Reader
+	pathParams  map[string]string
+	queryParams map[string][]string
+	payload     io.Reader
 
 	ctx context.Context
 }
 
+// Connection returns the Connection making the Request.
+func (r *Request) Connection() *Connection {
+	return r.connection
+}
+
+func (r *Request) PathParams() map[string]string {
+	return r.pathParams
+}
+
+func (r *Request) QueryParams() map[string][]string {
+	return r.queryParams
+}
+
+func (r *Request) Payload() io.Reader {
+	return r.payload
+}
+
+// Context returns the Request's Context.
 func (r *Request) Context() context.Context {
 	return r.ctx
 }
 
-// WithContext returns a shallow copy of r with its context changed
-// to ctx. The provided ctx must be non-nil.
-func (r *Request) WithContext(ctx context.Context) *Request {
+// SetContext sets the context to ctx.
+// The provided ctx must be non-nil.
+func (r *Request) SetContext(ctx context.Context) {
 	if ctx == nil {
 		panic("nil context")
 	}
-	r2 := new(Request)
-	*r2 = *r
-	r2.ctx = ctx
-	return r2
+	r.ctx = ctx
 }
