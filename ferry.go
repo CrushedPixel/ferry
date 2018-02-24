@@ -30,7 +30,7 @@ func New() *Ferry {
 
 func (f *Ferry) NewConnection(r *ConnectionRequest) (*Connection, Response) {
 	c := &Connection{
-		RemoteAddr: r.RemoteAddr,
+		remoteAddr: r.RemoteAddr,
 
 		ferry: f,
 		ctx:   context.Background(),
