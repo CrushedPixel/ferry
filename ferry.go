@@ -8,23 +8,15 @@ import (
 )
 
 type Ferry struct {
-	OnConnection HandleConnectionFunc
-	router       *mux.Router
-	routes       map[string][]HandlerFunc
-}
-
-type HandlerFunc func(r *Request) Response
-type HandleConnectionFunc func(r *ConnectionRequest, c *Connection) Response
-
-func defaultOnConnection(r *ConnectionRequest, c *Connection) Response {
-	return nil
+	connectionHandlers connectionHandlerChain
+	router             *mux.Router
+	routes             map[string][]HandlerFunc
 }
 
 func New() *Ferry {
 	return &Ferry{
-		OnConnection: defaultOnConnection,
-		router:       mux.NewRouter(),
-		routes:       make(map[string][]HandlerFunc),
+		router: mux.NewRouter(),
+		routes: make(map[string][]HandlerFunc),
 	}
 }
 
@@ -36,7 +28,7 @@ func (f *Ferry) NewConnection(r *ConnectionRequest) (*Connection, Response) {
 		ctx:   context.Background(),
 	}
 
-	if res := f.OnConnection(r, c); res == nil {
+	if res := f.connectionHandlers.Handle(r, c); res == nil {
 		return c, nil
 	} else {
 		return nil, res
@@ -122,4 +114,16 @@ func (f *Ferry) CONNECT(path string, handlers ...HandlerFunc) {
 
 func (f *Ferry) HEAD(path string, handlers ...HandlerFunc) {
 	f.Handle(http.MethodHead, path, handlers...)
+}
+
+// OnConnectionHandler adds a ConnectionHandler to be executed
+// whenever a connection request is received.
+func (f *Ferry) OnConnectionHandler(c ConnectionHandler) {
+	f.connectionHandlers = append(f.connectionHandlers, c)
+}
+
+// OnConnectionHAndlerFunc adds a ConnectionHandlerFunc to be executed
+// whenever a connection request is received.
+func (f *Ferry) OnConnectionHandlerFunc(c ConnectionHandlerFunc) {
+	f.OnConnectionHandler(c)
 }
